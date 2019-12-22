@@ -26,15 +26,15 @@ namespace DatingApp.API.Data
             return user;
         }
 
-        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] paswordSalt)
+        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
-            using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordHash))
+            using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
             {
                 var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
 
                 for (int i = 0; i < computedHash.Length; i++)
                 {
-                    if(computedHash[i] != passwordHash[i]) return false;
+                    if (computedHash[i] != passwordHash[i]) return false;
                 }
             }
             return true;
@@ -65,9 +65,9 @@ namespace DatingApp.API.Data
 
         public async Task<bool> UserExists(string username)
         {
-           if (await _context.Users.AnyAsync(x => x.Username == username)) return true;
+            if (await _context.Users.AnyAsync(x => x.Username == username)) return true;
 
-           return false;
+            return false;
         }
     }
 }

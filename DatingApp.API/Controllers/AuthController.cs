@@ -26,7 +26,6 @@ namespace DatingApp.API.Controllers
         }
 
 
-
         // Send a register user request to server and API
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
@@ -46,9 +45,6 @@ namespace DatingApp.API.Controllers
             return StatusCode(201);
         }
 
-
-
-
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
@@ -59,7 +55,8 @@ namespace DatingApp.API.Controllers
                 return Unauthorized();
             }
 
-            var claims = new[]{
+            var claims = new[]
+            {
                 new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
                 new Claim(ClaimTypes.Name, userFromRepo.Username)
             };
@@ -68,20 +65,17 @@ namespace DatingApp.API.Controllers
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(1),
-                SigningCredentials = creds
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var token = new JwtSecurityToken(
+                issuer: "localhost",
+                audience: "localhost",
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+            );
 
             return Ok(new
             {
-                token = tokenHandler.WriteToken(token)
+                token = new JwtSecurityTokenHandler().WriteToken(token)
             });
         }
     }
